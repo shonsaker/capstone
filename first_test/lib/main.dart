@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'checkin_screen.dart';
+import 'parent_checkin_screen.dart';
 
 
 void main() => runApp(MyApp());
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.lightBlue,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -58,13 +60,24 @@ class _MyHomePageState extends State<MyHomePage> {
   {
    // Switch the screen after the user has been authenticated properly
     bool loginStatus = login();
+    String userId = "6039272508955088"; 
     if (loginStatus == true)
     {
-      print("Login Status successful");
       String title = "Select Classroom";
-      // SecondScreen home = new SecondScreen(title: title); 
-      CheckInScreen checkin = new CheckInScreen(title: title);
-      Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
+      print("Login Status successful");
+      if (title == "Select Child")
+      {
+        ParentCheckInScreen checkin = new ParentCheckInScreen(title: title, userId: userId);
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
+
+      }
+      else if (title == "Select Classroom")
+      {
+        CheckInScreen checkin = new CheckInScreen(title: title, userId:userId);
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
+
+      }
+
     }
 
   }
@@ -94,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final loginButon = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
+      // color: Color(0xff01A0C7),
+      color: Colors.lightBlue[900],
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -111,18 +125,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
+          color: Colors.lightBlue,
           child: Padding(
-            padding: const EdgeInsets.all(36.0),
+            padding: const EdgeInsets.all(30.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 155.0,
-                  // child: Image.asset(
-                  //   fit: BoxFit.contain,
-                  // ),
+                  height: 200.0,
+                  child: Image.asset('assets/images/Kids_Day_Care.jpg',
+                  ),
                 ),
                 SizedBox(height: 45.0),
                 emailField,

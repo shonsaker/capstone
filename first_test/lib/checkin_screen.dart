@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'child_actions_screen.dart';
+import 'ModAccount.dart'; 
 
 Future<List<CheckInInfo>> fetchLoginInfo(http.Client client) async 
 {
@@ -16,7 +17,8 @@ Future<List<CheckInInfo>> fetchLoginInfo(http.Client client) async
                     {"description": "Has your child been injured?", "token": "a token", "title": "Toddler"},
                     {"description": "Has your child been injured?", "token": "a token", "title": "Preschool"},
                     {"description": "Has your child been injured?", "token": "a token", "title": "GradeSchool"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "All"}
+                    {"description": "Has your child been injured?", "token": "a token", "title": "All"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Modify Account"}
                     ]''';
 
   // Use the compute function to run parseLoginInfo in a separate isolate
@@ -29,7 +31,6 @@ Future<List<CheckInInfo>> fetchLoginInfo(http.Client client) async
 List<CheckInInfo> parseLoginInfo(String responseBody) 
 {
   final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
-  print(parsed);
 
   return parsed.map<CheckInInfo>((json) => CheckInInfo.fromJson(json)).toList();
 }
@@ -59,8 +60,10 @@ class CheckInScreen extends StatelessWidget
 {
   // Pass the class a title 
   final String title;
+  final String classroom; 
+  final String userId; 
 
-  CheckInScreen({Key key, this.title}) : super(key: key);
+  CheckInScreen({Key key, this.title, this.classroom, this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) 
@@ -69,17 +72,19 @@ class CheckInScreen extends StatelessWidget
       appBar: AppBar(
         title: Text(title),
       ),
-      body: Padding(
+      body: 
+       Padding(
         child: FutureBuilder<List<CheckInInfo>>(
           future: fetchLoginInfo(http.Client()),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
 
             return snapshot.hasData
-                ? CheckInInfoList(infoMetric: snapshot.data)
+                ? CheckInInfoList(infoMetric: snapshot.data, userId: userId)
                 : Center(child: CircularProgressIndicator());
           },
         ),
+
         padding: EdgeInsets.fromLTRB(1.0, 10.0, 1.0, 10.0),
       ),
     );
@@ -90,18 +95,27 @@ class CheckInInfoList extends StatelessWidget
 {
   // Must pass this the list that we want 
   final List<CheckInInfo> infoMetric;
+  final String userId; 
 
-  CheckInInfoList({Key key, this.infoMetric}) : super(key: key);
+  CheckInInfoList({Key key, this.infoMetric, this.userId}) : super(key: key);
 
   switchScreens(btnName, context)
   {
    // Switch the screen after selecting a class room
-    print("it made it to the correct method"); 
-    print(btnName);
     String title = "Select Action";
+    String classroom = btnName;
     // SecondScreen home = new SecondScreen(title: title); 
-    ChildActionScreen childActions = new ChildActionScreen(title: title);
-    Navigator.push(context, new MaterialPageRoute(builder: (context) => childActions));
+    if(classroom != "Modify Account")
+    {
+      ChildActionScreen childActions = new ChildActionScreen(title: title, classroom: btnName );
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => childActions));
+    }
+    else
+    {
+      ModAccountScreen modAccount = new ModAccountScreen(title: title, classroom: btnName, userId:userId );
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => modAccount));
+    }
+
 
   }
 
@@ -115,13 +129,16 @@ class CheckInInfoList extends StatelessWidget
       itemCount: infoMetric.length,
       itemBuilder: (context, index) 
       {
-        String btnName = infoMetric[index].title;
+        String btnName = infoMetric[index].title;        
 
         final loginButon = Material(
+          color: Colors.lightBlue[900],
           elevation: 5.0,
           borderRadius: BorderRadius.circular(30.0),
-          color: Color(0xff01A0C7),
+
           child: MaterialButton(
+            color: Colors.lightBlue[900],
+            clipBehavior: Clip.antiAlias,
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed:() {
@@ -141,16 +158,16 @@ class CheckInInfoList extends StatelessWidget
                   height: Theme.of(context).textTheme.display1.fontSize * 1.1 +
                       50.0,
                 ),
-                color: Colors.white10,
+                // color: Colors.white10,
+                color: Colors.lightBlue,
                 alignment: Alignment.center,
                 child: Card(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       // ListTile(
-                      //   leading: Image.network(
-                      //     infoMetric[index].token,
-                      //     fit: BoxFit.fitWidth,
+                      //   leading: Image.asset('assets/images/Kids_Day_Care.jpg',
+
                       //   ),
                       //   title: Text(infoMetric[index].title),
                       //   subtitle: Text(infoMetric[index].description),

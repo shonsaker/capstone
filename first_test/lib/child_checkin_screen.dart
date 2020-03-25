@@ -3,98 +3,232 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:http/http.dart' as http;
 
 
-class CheckInScreen extends StatelessWidget 
+Future<List<ActionsInfo>> fetchLoginInfo(http.Client client) async 
+{
+  // Make the api call 
+  // final response =
+  // await client.get('https://jsonplaceholder.typicode.com/photos');
+  String t = '''[{"description": "Decide what your child will eat", "parent_name": "Jay", "child_name": "Steven"}, 
+                    {"description": "Has your child been injured?", "parent_name": "Steve", "child_name": "Gabby"},
+                    {"description": "Has your child been injured?", "parent_name": "Jake", "child_name": "Joe"},
+                    {"description": "Has your child been injured?", "parent_name": "Marcus", "child_name": "Matt"},
+                    {"description": "Has your child been injured?", "parent_name": "Jim", "child_name": "Drew"}
+                    ]''';
+
+  // Use the compute function to run parseLoginInfo in a separate isolate
+  // Not sure why it runs in a compute function, but this calls the a function that creates a list from this result
+  // return compute(parseLoginInfo, response.body);
+  return compute(parseLoginInfo, t);
+}
+
+// This function converts a json into a list
+List<ActionsInfo> parseLoginInfo(String responseBody) 
+{
+  final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+  print(parsed);
+
+  return parsed.map<ActionsInfo>((json) => ActionsInfo.fromJson(json)).toList();
+}
+
+class ActionsInfo 
+{
+  final String success;
+  final String parent_name;
+  final String child_name; 
+  final String description;
+
+  ActionsInfo({this.success, this.parent_name, this.child_name, this.description});
+
+  factory ActionsInfo.fromJson(Map<String, dynamic> json) 
+  {
+    return ActionsInfo(
+      parent_name: json['parent_name'] as String,
+      success: json['success'] as String,
+      child_name: json["child_name"] as String,
+      description: json["description"] as String
+    );
+  }
+}
+
+// class SomeClass extends StatefulWidget{
+
+//   State<StatefulWidget> createState(){
+//     return ChildCheckinScreen(); 
+//   }
+// }
+
+
+// class CheckboxState extends State<Checkbox> {
+//   bool _checkboxChecked = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     _loadCheckboxState();
+//   }
+
+//   void checkboxChanged(bool value) {
+//     setState(() {
+//       _checkboxChecked = value;
+//       _saveCheckboxBool(value);
+//     });
+//   }
+
+//   void _saveCheckboxBool(bool value) async {
+//     // SharedPreferences prefs = await SharedPreferences.getInstance();
+//     // await prefs.setBool('savePassword', value);
+//     String t = ""; 
+//   }
+
+//   void _loadCheckboxState() async {
+//     // SharedPreferences prefs = await SharedPreferences.getInstance();
+//     // bool checkboxState = prefs.getBool('savePassword');
+//     setState(() {
+//       _checkboxChecked = true;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return new Container(
+//       padding: const EdgeInsets.only(left: 20.0, right: 0.0),
+//       child: new Row(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         children: <Widget>[
+//           // new ColoredCheckbox(
+//           //   activeColor: Colors.white,
+//           //   value: _checkboxChecked, 
+//           //   onChanged: (bool value) {
+//           //     checkboxChanged(value);
+//           //   },
+//           // ),
+//           new Text(
+//             'Remember Password?',
+//             style: new TextStyle(
+//               fontSize: 12.0,
+//               // color: pureWhite
+//             )
+//           ),
+//         ],
+//       )
+//     );
+//   }
+// }
+
+
+
+class ChildCheckinScreen extends StatelessWidget
 {
   // Pass the class a title 
   final String title;
 
-  CheckInScreen({Key key, this.title}) : super(key: key);
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-
-  switchScreens(context)
-  {
-   // Switch the screen after the user has been authenticated properly
-    bool loginStatus = true;
-    if (loginStatus == true)
-    {
-      print("we hit the submit button");
-    }
-  }
+  ChildCheckinScreen({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) 
   {
-    final emailField = TextField(
-      obscureText: false,
-      style: style,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "First Name",
-          border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-    );
-    final passwordField = TextField(
-      obscureText: true,
-      style: style,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Last Name",
-          border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-    );
-    final loginButon = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed:() {
-          switchScreens(context);
-        },
-        child: Text("Check In",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: Center(
-        child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                ),
-                SizedBox(height: 45.0),
-                emailField,
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(
-                  height: 35.0,
-                ),
-                loginButon,
-                SizedBox(
-                  height: 15.0,
-                ),
-              ],
-            ),
-          ),
+      body: Padding(
+        child: FutureBuilder<List<ActionsInfo>>(
+          future: fetchLoginInfo(http.Client()),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) print(snapshot.error);
+
+            return snapshot.hasData
+                // ? CheckboxWidget(infoMetric: snapshot.data)
+                ? CheckInScreen(infoMetric: snapshot.data)
+                : Center(child: CircularProgressIndicator());
+          },
         ),
+        padding: EdgeInsets.fromLTRB(1.0, 10.0, 1.0, 10.0),
       ),
+    );
+  }
+
+}
+
+class CheckInScreen extends StatelessWidget
+{
+  // Pass the class a title 
+  // final String title;
+  final List<ActionsInfo> infoMetric;
+  
+  CheckInScreen({Key key, this.infoMetric}) : super(key: key);
+  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  bool isChecked = false;
+
+  bool toggleCheckbox(bool value) {
+      print("it made it here");
+      if(isChecked == false)
+      {
+        isChecked = true; 
+      }
+      else
+      {
+        isChecked = false; 
+      }
+      return isChecked; 
+  }
+
+ @override
+  Widget build(BuildContext context) 
+  {
+
+    final chkBox = Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(30.0),
+          color: Color(0xff01A0C7),
+          child: Checkbox(
+            value: isChecked,
+            onChanged: (value){toggleCheckbox(value);},
+            activeColor: Colors.white,
+            checkColor: Colors.black,
+            tristate: false,
+          )
+      );
+
+    return ListView.builder(
+
+      // This needs to be the object we pass from the api 
+      itemCount: infoMetric.length,
+      itemBuilder: (context, index) 
+      {
+        String childName = infoMetric[index].child_name;
+        String parentName = infoMetric[index].parent_name;
+
+        return Column(
+          children: <Widget>[
+          Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.all(20.0),
+                  child: Table(
+                    border: TableBorder.all(color: Colors.black),
+                    children: [
+                      TableRow(children: [
+                        Text("Child Name"),
+                        Text("Parent Name"),
+                        Text('Sign In'),
+                      ]),
+                      TableRow(children: [
+                        Text(childName),
+                        Text(parentName),
+                        chkBox,
+                      ])
+                    ],
+                  ),
+                )
+          ],
+        );
+      },
     );
   }
 }

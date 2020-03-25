@@ -5,19 +5,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'child_checkin_screen.dart';
+// import 'child_checkin_screen.dart';
 import 'child_checkout_screen.dart';
+import 'main_v2.dart'; 
+import 'ChildCheckinScreen.dart';
+import 'teacher_nap_time.dart'; 
+import 'SelectMeal.dart';
+import 'teacher_input_bathroom.dart';
+import 'teacher_input_mood.dart';
+import 'teacher_input_supplies.dart';
 
-Future<List<ActionsInfo>> fetchLoginInfo(http.Client client) async 
+Future<List<ActionsInfo>> fetchLoginInfo(http.Client client, String classroom) async 
 {
   // Make the api call 
   // final response =
   // await client.get('https://jsonplaceholder.typicode.com/photos');
-  String t = '''[{"description": "Decide what your child will eat", "token": "a token", "title": "Check In"}, 
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Check Out"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Nap Time"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Diaper Change"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Mood"}
+  String t = '''[{"description": "Decide what your child will eat", "token": "a token", "title": "Check In or Check Out", "classroom":"${classroom}"}, 
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Nap Time", "classroom":"${classroom}"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Diaper Change", "classroom":"${classroom}"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Mood", "classroom":"${classroom}"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Meals", "classroom":"${classroom}"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Supplies", "classroom":"${classroom}"}
                     ]''';
 
   // Use the compute function to run parseLoginInfo in a separate isolate
@@ -30,7 +38,6 @@ Future<List<ActionsInfo>> fetchLoginInfo(http.Client client) async
 List<ActionsInfo> parseLoginInfo(String responseBody) 
 {
   final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
-  print(parsed);
 
   return parsed.map<ActionsInfo>((json) => ActionsInfo.fromJson(json)).toList();
 }
@@ -41,8 +48,9 @@ class ActionsInfo
   final String token;
   final String title; 
   final String description;
+  final String classroom;
 
-  ActionsInfo({this.success, this.token, this.title, this.description});
+  ActionsInfo({this.success, this.token, this.title, this.description, this.classroom});
 
   factory ActionsInfo.fromJson(Map<String, dynamic> json) 
   {
@@ -50,7 +58,8 @@ class ActionsInfo
       token: json['token'] as String,
       success: json['success'] as String,
       title: json["title"] as String,
-      description: json["description"] as String
+      description: json["description"] as String,
+      classroom: json["classroom"] as String
     );
   }
 }
@@ -59,8 +68,9 @@ class ChildActionScreen extends StatelessWidget
 {
   // Pass the class a title 
   final String title;
+  final String classroom; 
 
-  ChildActionScreen({Key key, this.title}) : super(key: key);
+  ChildActionScreen({Key key, this.title, this.classroom}) : super(key: key);
 
   @override
   Widget build(BuildContext context) 
@@ -71,7 +81,7 @@ class ChildActionScreen extends StatelessWidget
       ),
       body: Padding(
         child: FutureBuilder<List<ActionsInfo>>(
-          future: fetchLoginInfo(http.Client()),
+          future: fetchLoginInfo(http.Client(), this.classroom),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
 
@@ -93,27 +103,49 @@ class ChildActionInfoList extends StatelessWidget
 
   ChildActionInfoList({Key key, this.infoMetric}) : super(key: key);
 
-  switchScreens(btnName, context)
+  switchScreens(btnName, context, classroom)
   {
    // Switch the screen after the user has been authenticated properly
     bool loginStatus = true; 
     if (loginStatus == true)
     {
-      print(btnName);
-      if(btnName == 'Check In')
+      if(btnName == 'Check In or Check Out')
       {
-          String title = "Student Check In";
-          // SecondScreen home = new SecondScreen(title: title); 
-          CheckInScreen checkin = new CheckInScreen(title: title);
+          String title = "Student Check In Control";
+          ChildCheckinScreen checkin = new ChildCheckinScreen(title: title, classroom: classroom);
           Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
       }
-      else if(btnName == 'Check Out')
+      else if(btnName == 'Nap Time')
       {
-          String title = "Student Check Out";
-          // SecondScreen home = new SecondScreen(title: title); 
-          CheckOutScreen checkout = new CheckOutScreen(title: title);
-          Navigator.push(context, new MaterialPageRoute(builder: (context) => checkout));
+          String title = "Student Naps";
+          ChildNapScreen napTime = new ChildNapScreen(title: title);
+          Navigator.push(context, new MaterialPageRoute(builder: (context) => napTime));
       }
+      else if(btnName == "Meals")
+      {
+          String title = "Select Meal Time";
+          CheckMealScreen mealTime = new CheckMealScreen(title: title);
+          Navigator.push(context, new MaterialPageRoute(builder: (context) => mealTime));
+      }
+      else if (btnName == "Diaper Change")
+      {
+          String title = "Student Bathroom Breaks";
+          ChildBathroomScreen bathroomBreaks = new ChildBathroomScreen(title: title, classroom: classroom);
+          Navigator.push(context, new MaterialPageRoute(builder: (context) => bathroomBreaks));
+      }
+      else if (btnName == "Mood")
+      {
+          String title = "Student Moods";
+          ChildMoodScreen mood = new ChildMoodScreen(title: title, classroom: classroom);
+          Navigator.push(context, new MaterialPageRoute(builder: (context) => mood));
+      }
+      else if (btnName == "Supplies")
+      {
+          String title = "Student Supplies";
+          ChildSuppliesScreen supplies = new ChildSuppliesScreen(title: title, classroom: classroom);
+          Navigator.push(context, new MaterialPageRoute(builder: (context) => supplies));
+      }
+      
 
     }
   }
@@ -130,16 +162,18 @@ class ChildActionInfoList extends StatelessWidget
       itemBuilder: (context, index) 
       {
         String btnName = infoMetric[index].title;
-
+        String classroom = infoMetric[index].classroom; 
         final loginButton = Material(
           elevation: 5.0,
           borderRadius: BorderRadius.circular(30.0),
-          color: Color(0xff01A0C7),
+          // color: Color(0xff01A0C7),
+          color: Colors.lightBlue[900],
           child: MaterialButton(
+            color: Colors.lightBlue[900],
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed:() {
-              switchScreens(btnName, context);
+              switchScreens(btnName, context, classroom);
             },
             child: Text(infoMetric[index].title,
                 textAlign: TextAlign.center,
@@ -155,12 +189,17 @@ class ChildActionInfoList extends StatelessWidget
                   height: Theme.of(context).textTheme.display1.fontSize * 1.1 +
                       50.0,
                 ),
-                color: Colors.white10,
+                color: Colors.lightBlue,
                 alignment: Alignment.center,
                 child: Card(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
+                      SizedBox(
+                          height: 200.0,
+                          child: Image.asset('assets/images/Kids_Day_Care.jpg',
+                          ),
+                        ),
                       loginButton,
                     ],
                   ),

@@ -167,9 +167,17 @@ class CheckMealState extends State<CheckMealScreen> {
  @override
   Widget build(BuildContext context) 
   {
-
+    // return Column(
+    //   children: <Widget>[
+    //     SizedBox(
+    //       height: 200.0,
+    //       child: Image.asset('assets/images/Kids_Day_Care.jpg',
+    //       ),
+    //     ),
     return Scaffold(
-      body: ListView.builder(
+      body:    
+         ListView.builder(
+         shrinkWrap: true,
         // This needs to be the object we pass from the api 
         itemCount: infoMetric.length,
         itemBuilder: (context, index) 
@@ -203,5 +211,7 @@ class CheckMealState extends State<CheckMealScreen> {
         },
       ),
     );
+    // ]
+// );
   }
 }

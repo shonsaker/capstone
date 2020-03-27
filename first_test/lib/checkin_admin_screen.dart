@@ -5,17 +5,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'teacher_select_meal_time.dart';
+import 'child_actions_screen.dart';
+import 'admin_screen.dart';
+import 'ModAccount.dart'; 
 
-Future<List<MealTimeInfo>> fetchLoginInfo(http.Client client) async 
+Future<List<CheckInInfo>> fetchLoginInfo(http.Client client) async 
 {
   // Make the api call 
   // final response =
   // await client.get('https://jsonplaceholder.typicode.com/photos');
-  String t = '''[{"description": "Has your child been injured?", "token": "a token", "title": "Breakfast"},
-                    {"description": "Decide what your child will eat", "token": "a token", "title": "Morning Snack"}, 
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Lunch"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "Afternoon Snack"}
+  String t = '''[{"description": "Decide what your child will eat", "token": "a token", "title": "Infant"}, 
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Toddler"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Preschool"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "GradeSchool"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Modify Account"},
+                    {"description": "Has your child been injured?", "token": "a token", "title": "Admin"}
                     ]''';
 
   // Use the compute function to run parseLoginInfo in a separate isolate
@@ -25,26 +29,26 @@ Future<List<MealTimeInfo>> fetchLoginInfo(http.Client client) async
 }
 
 // This function converts a json into a list
-List<MealTimeInfo> parseLoginInfo(String responseBody) 
+List<CheckInInfo> parseLoginInfo(String responseBody) 
 {
   final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
 
-  return parsed.map<MealTimeInfo>((json) => MealTimeInfo.fromJson(json)).toList();
+  return parsed.map<CheckInInfo>((json) => CheckInInfo.fromJson(json)).toList();
 }
 
 
-class MealTimeInfo 
+class CheckInInfo 
 {
   final String success;
   final String token;
   final String title; 
   final String description;
 
-  MealTimeInfo({this.success, this.token, this.title, this.description});
+  CheckInInfo({this.success, this.token, this.title, this.description});
 
-  factory MealTimeInfo.fromJson(Map<String, dynamic> json) 
+  factory CheckInInfo.fromJson(Map<String, dynamic> json) 
   {
-    return MealTimeInfo(
+    return CheckInInfo(
       token: json['token'] as String,
       success: json['success'] as String,
       title: json["title"] as String,
@@ -53,14 +57,14 @@ class MealTimeInfo
   }
 }
 
-class CheckMealScreen extends StatelessWidget 
+class AdminCheckInScreen extends StatelessWidget 
 {
   // Pass the class a title 
   final String title;
   final String classroom; 
   final String userId; 
 
-  CheckMealScreen({Key key, this.title, this.classroom, this.userId}) : super(key: key);
+  AdminCheckInScreen({Key key, this.title, this.classroom, this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) 
@@ -71,13 +75,13 @@ class CheckMealScreen extends StatelessWidget
       ),
       body: 
        Padding(
-        child: FutureBuilder<List<MealTimeInfo>>(
+        child: FutureBuilder<List<CheckInInfo>>(
           future: fetchLoginInfo(http.Client()),
           builder: (context, snapshot) {
             if (snapshot.hasError) print(snapshot.error);
 
             return snapshot.hasData
-                ? CheckMealInfoList(infoMetric: snapshot.data, userId: userId, classroom: classroom)
+                ? AdminCheckInInfoList(infoMetric: snapshot.data, userId: userId)
                 : Center(child: CircularProgressIndicator());
           },
         ),
@@ -88,23 +92,36 @@ class CheckMealScreen extends StatelessWidget
   }
 }
 
-class CheckMealInfoList extends StatelessWidget 
+class AdminCheckInInfoList extends StatelessWidget 
 {
   // Must pass this the list that we want 
-  final List<MealTimeInfo> infoMetric;
+  final List<CheckInInfo> infoMetric;
   final String userId; 
-  final String classroom; 
 
-  CheckMealInfoList({Key key, this.infoMetric, this.userId, this.classroom}) : super(key: key);
+  AdminCheckInInfoList({Key key, this.infoMetric, this.userId}) : super(key: key);
 
-  switchScreens(btnName, context, classroom)
+  switchScreens(btnName, context)
   {
    // Switch the screen after selecting a class room
-    String title = "How much did they eat?";
+    String title = "Select Action";
+    String classroom = btnName;
     // SecondScreen home = new SecondScreen(title: title); 
-    ChildMealScreen childMeals = new ChildMealScreen(title: title, mealTime: btnName, classroom:classroom);
-    Navigator.push(context, new MaterialPageRoute(builder: (context) => childMeals));
-    
+    if (classroom == "Admin")
+    {
+      SelectAdminScreen modAccount = new SelectAdminScreen(title: title, classroom: btnName, userId:userId );
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => modAccount));
+
+    }
+    else if(classroom != "Modify Account")
+    {
+      ChildActionScreen childActions = new ChildActionScreen(title: title, classroom: btnName );
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => childActions));
+    }
+    else
+    {
+      ModAccountScreen modAccount = new ModAccountScreen(title: title, classroom: btnName, userId:userId );
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => modAccount));
+    }
 
   }
 
@@ -112,6 +129,7 @@ class CheckMealInfoList extends StatelessWidget
   Widget build(BuildContext context) 
   {
     TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
     return Column(
       children: <Widget>[
         SizedBox(
@@ -120,7 +138,7 @@ class CheckMealInfoList extends StatelessWidget
           ),
         ),
      ListView.builder(
-       shrinkWrap: true,
+      shrinkWrap: true,
       // This needs to be the object we pass from the api 
       itemCount: infoMetric.length,
       itemBuilder: (context, index) 
@@ -138,7 +156,7 @@ class CheckMealInfoList extends StatelessWidget
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed:() {
-              switchScreens(btnName, context, classroom);
+              switchScreens(btnName, context);
             },
             child: Text(infoMetric[index].title,
                 textAlign: TextAlign.center,
@@ -161,13 +179,6 @@ class CheckMealInfoList extends StatelessWidget
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      // ListTile(
-                      //   leading: Image.asset('assets/images/Kids_Day_Care.jpg',
-
-                      //   ),
-                      //   title: Text(infoMetric[index].title),
-                      //   subtitle: Text(infoMetric[index].description),
-                      // ),
                       loginButon,
                     ],
                   ),
@@ -177,6 +188,6 @@ class CheckMealInfoList extends StatelessWidget
       },
     )
       ]
-    );
+      );
   }
 }

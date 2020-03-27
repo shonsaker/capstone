@@ -43,9 +43,9 @@ class ModEmailInfo extends StatelessWidget
 
   void updateEmail(String emailAddr, String userId)
   {
-    String jsonString = '''{"user_id":"${userId}", "email_address":"${emailAddr}" }'''; 
+    String jsonString = '''{"user_id":"${userId}", "email":"${emailAddr}" }'''; 
     print(jsonString);
-    // postModEmailResults(jsonString);
+    postModEmailResults(jsonString);
   }
 
   @override

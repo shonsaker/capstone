@@ -17,7 +17,6 @@ Future<List<CheckInInfo>> fetchLoginInfo(http.Client client) async
                     {"description": "Has your child been injured?", "token": "a token", "title": "Toddler"},
                     {"description": "Has your child been injured?", "token": "a token", "title": "Preschool"},
                     {"description": "Has your child been injured?", "token": "a token", "title": "GradeSchool"},
-                    {"description": "Has your child been injured?", "token": "a token", "title": "All"},
                     {"description": "Has your child been injured?", "token": "a token", "title": "Modify Account"}
                     ]''';
 
@@ -124,7 +123,15 @@ class CheckInInfoList extends StatelessWidget
   {
     TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-    return ListView.builder(
+    return Column(
+      children: <Widget>[
+        SizedBox(
+          height: 200.0,
+          child: Image.asset('assets/images/Kids_Day_Care.jpg',
+          ),
+        ),
+     ListView.builder(
+      shrinkWrap: true,
       // This needs to be the object we pass from the api 
       itemCount: infoMetric.length,
       itemBuilder: (context, index) 
@@ -179,6 +186,8 @@ class CheckInInfoList extends StatelessWidget
           ],
         );
       },
-    );
+    )
+      ]
+      );
   }
 }

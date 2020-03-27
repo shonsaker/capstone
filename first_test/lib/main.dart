@@ -1,6 +1,11 @@
+import 'package:child_checkin/intial_screen.dart' as prefix0;
 import 'package:flutter/material.dart';
 import 'checkin_screen.dart';
+import 'checkin_admin_screen.dart'; 
 import 'parent_checkin_screen.dart';
+import 'LoginInfo.dart'; 
+import 'calls.dart';
+import 'package:http/http.dart' as http;
 
 
 void main() => runApp(MyApp());
@@ -47,23 +52,37 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-  bool login()
+  login(String email, String password)
   {
     // This method should authenticate with the DB and log the user in
-    return true;
+    print(email); 
+    print(password);
+    // FutureBuilder<List<LoginInfo>>(
+    //     future: fetchNewLoginInfo(http.Client(), email, password),
+    //     builder: (context, snapshot) {
+    //         if (snapshot.hasError) print(snapshot.error);
+
+    //         return snapshot.hasData
+    //             ? switchScreens(snapshot.data)
+    //             : Center(child: CircularProgressIndicator());
+    //       },
+    //     // To show a spinner while loading
+    //     // return CircularProgressIndicator();
+    //   );
+    switchScreens();
+
   }
 
   switchScreens()
   {
-   // Switch the screen after the user has been authenticated properly
-    bool loginStatus = login();
-    String userId = "6039272508955088"; 
-    if (loginStatus == true)
-    {
-      String title = "Select Classroom";
+      // Switch the screen after the user has been authenticated properly
+      String userId = "6039272508955088"; 
+
+      String title = "Select Admin Classroom";
       print("Login Status successful");
       if (title == "Select Child")
       {
@@ -77,17 +96,21 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
 
       }
-
-    }
-
+      else if (title == "Select Admin Classroom")
+      {
+        AdminCheckInScreen checkin = new AdminCheckInScreen(title: title, userId:userId);
+        Navigator.push(context, new MaterialPageRoute(builder: (context) => checkin));
+      }
   }
 
   @override
   // Widget build(BuildContext context) {
   build(BuildContext context) {
-
+    final emailController = TextEditingController();
+    final pwdController = TextEditingController();
     final emailField = TextField(
       obscureText: false,
+      controller: emailController,
       style: style,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -98,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final passwordField = TextField(
       obscureText: true,
       style: style,
+      controller: pwdController,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
@@ -113,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed:() {
-          switchScreens();
+          login(emailController.text, pwdController.text);
         },
         child: Text("Login",
             textAlign: TextAlign.center,

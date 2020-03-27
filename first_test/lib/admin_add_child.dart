@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'calls.dart'; 
 
 
-class ModPasswordScreen extends StatelessWidget 
+class AddKidScreen extends StatelessWidget 
 {
   // Pass the class a title 
   final String title;
@@ -16,7 +16,7 @@ class ModPasswordScreen extends StatelessWidget
   final String userName; 
   final String userId; 
   
-  ModPasswordScreen({Key key, this.title, this.classroom, this.emailAddr, this.userId, this.userName}) : super(key: key);
+  AddKidScreen({Key key, this.title, this.classroom, this.emailAddr, this.userId, this.userName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) 
@@ -25,45 +25,71 @@ class ModPasswordScreen extends StatelessWidget
       appBar: AppBar(
         title: Text(title),
       ),
-      body: ModPasswordInfo(userName: this.userName, emailAddr: this.emailAddr, userId: this.userId)
+      body: AddKidInfo(userName: this.userName, emailAddr: this.emailAddr, userId: this.userId)
 
     );
   }
 }
 
-class ModPasswordInfo extends StatelessWidget 
+class AddKidInfo extends StatelessWidget 
 {
   // Must pass this the list that we want 
   final String userName;
   final String emailAddr; 
   final String userId; 
   
-  ModPasswordInfo({Key key, this.userName, this.emailAddr, this.userId}) : super(key: key);
 
-  void updateEmail(String password, String userId)
+  AddKidInfo({Key key, this.userName, this.emailAddr, this.userId}) : super(key: key);
+
+  void updateEmail(String emailAddr, String parentName, String childName)
   {
-    String jsonString = '''{"user_id":"${userId}", "password":"${password}" }'''; 
+    String jsonString = '''{"user_name":"${userName}", "email":"${emailAddr}", "child_name":"${childName} }'''; 
     print(jsonString);
-    postModPasswordResults(jsonString);
+    postModEmailResults(jsonString);
   }
 
   @override
   Widget build(BuildContext context) 
   {
     TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-    final passwordController = TextEditingController();
-    final passwordField = TextField(
+    final emailController = TextEditingController(text: emailAddr);
+    final emailField = TextField(
       obscureText: false,
       style: style,
-      controller: passwordController,
+      controller: emailController,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Enter New Password",
+          hintText: "Enter Parent Email Address",
           border:
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
 
-    final passwordButton = Material(
+    final parentController = TextEditingController(text: emailAddr);
+    final parentField = TextField(
+      obscureText: false,
+      style: style,
+      controller: parentController,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Enter Parent Name",
+          border:
+          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    final kidController = TextEditingController(text: emailAddr);
+    final kidField = TextField(
+      obscureText: false,
+      style: style,
+      controller: kidController,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Enter Child Name",
+          border:
+          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+
+    final emailButton = Material(
       color: Colors.lightBlue[900],
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
@@ -74,9 +100,9 @@ class ModPasswordInfo extends StatelessWidget
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed:() {
-          updateEmail(passwordController.text, userId);
+          updateEmail(emailController.text, parentController.text, kidController.text);
         },
-        child: Text("Update Password",
+        child: Text("Add Child",
             textAlign: TextAlign.center,
             style: style.copyWith(
                 color: Colors.white, fontWeight: FontWeight.bold)),
@@ -95,11 +121,17 @@ class ModPasswordInfo extends StatelessWidget
                   ),
                 ),
                 SizedBox(height: 45.0),
-                passwordField,
+                kidField,
+                SizedBox(height: 35.0),
+                  emailField,
                 SizedBox(
                   height: 35.0,
                 ),
-                passwordButton,
+                  parentField,
+                SizedBox(
+                  height: 35.0,
+                ),
+                emailButton,
               ],
             );
   }

@@ -155,62 +155,53 @@ class ChildActionInfoList extends StatelessWidget
   {
     TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-    return Column(
-      children: <Widget>[
-        SizedBox(
-          height: 200.0,
-          child: Image.asset('assets/images/Kids_Day_Care.jpg',
-          ),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          // This needs to be the object we pass from the api 
-          itemCount: infoMetric.length,
-          itemBuilder: (context, index) 
-          {
-            String btnName = infoMetric[index].title;
-            String classroom = infoMetric[index].classroom; 
-            final loginButton = Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(30.0),
-              // color: Color(0xff01A0C7),
-              color: Colors.lightBlue[900],
-              child: MaterialButton(
-                color: Colors.lightBlue[900],
-                minWidth: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                onPressed:() {
-                  switchScreens(btnName, context, classroom);
-                },
-                child: Text(infoMetric[index].title,
-                    textAlign: TextAlign.center,
-                    style: style.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-          );
+    return ListView.builder(
 
-            return Column(
-              children: <Widget>[
-                Container(
-                    constraints: BoxConstraints.expand(
-                      height: Theme.of(context).textTheme.display1.fontSize * 1.1 +
-                          50.0,
-                    ),
-                    color: Colors.lightBlue,
-                    alignment: Alignment.center,
-                    child: Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          loginButton,
-                        ],
-                      ),
-                    )),
-              ],
-            );
-          },
-        ),
-      ],
+      // This needs to be the object we pass from the api 
+      itemCount: infoMetric.length,
+      itemBuilder: (context, index) 
+      {
+        String btnName = infoMetric[index].title;
+        String classroom = infoMetric[index].classroom; 
+        final loginButton = Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(30.0),
+          // color: Color(0xff01A0C7),
+          color: Colors.lightBlue[900],
+          child: MaterialButton(
+            color: Colors.lightBlue[900],
+            minWidth: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+            onPressed:() {
+              switchScreens(btnName, context, classroom);
+            },
+            child: Text(infoMetric[index].title,
+                textAlign: TextAlign.center,
+                style: style.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+      );
+
+        return Column(
+          children: <Widget>[
+            Container(
+                constraints: BoxConstraints.expand(
+                  height: Theme.of(context).textTheme.display1.fontSize * 1.1 +
+                      50.0,
+                ),
+                color: Colors.lightBlue,
+                alignment: Alignment.center,
+                child: Card(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      loginButton,
+                    ],
+                  ),
+                )),
+          ],
+        );
+      },
     );
   }
 }

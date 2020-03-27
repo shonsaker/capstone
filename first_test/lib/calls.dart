@@ -16,6 +16,7 @@ import 'ParentKidInfo.dart';
 import 'ParentBathroomInfo.dart';
 import 'ParentNapInfo.dart'; 
 import 'ParentChildNeeds.dart';
+import 'LoginInfo.dart'; 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -334,9 +335,21 @@ void postModEmailResults(String jsonString)
   makePostRequest(url, jsonString);
 }
 
+void postModPasswordResults(String jsonString)
+{
+  String url = apiUrl + "/updateuserpassword";
+  makePostRequest(url, jsonString);
+}
+
 void postchildCheckinResults(String jsonString)
 {
   String url = apiUrl + "/updatechildcheckin";
+  makePostRequest(url, jsonString);
+}
+
+void postAddKidResults(String jsonString)
+{
+  String url = apiUrl + "/addKid";
   makePostRequest(url, jsonString);
 }
 
@@ -359,6 +372,25 @@ Future<List<UserInfo>>fetchUserInfo(http.Client client, String userId)  async
   print(response.statusCode); 
   return compute(parseUserInfo, response.body);
 }
+
+
+List<LoginInfo> parseNewLoginInfo(var responseBody) 
+{
+  // print("it did something");
+  final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+  // print("parsed");
+  return parsed.map<LoginInfo>((json) => LoginInfo.fromJson(json)).toList();
+}
+
+Future<List<LoginInfo>>fetchNewLoginInfo(http.Client client, String email, String password)  async
+{
+    // Make the api call 
+  String url = apiUrl + "/login?email=${email}&password=${password}";
+  // // String results = makePostRequest(url, json);
+  var response = await http.get(url);  
+  return compute(parseNewLoginInfo, response.body);
+}
+
 
 
 makePostRequest(String url, String jsonString) async {

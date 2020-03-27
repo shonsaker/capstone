@@ -98,6 +98,7 @@ class CheckParentScreenState extends State<CheckParentScreen> {
     modJsonString["user_id"] = userId;
     modJsonString["user_name"] = userName; 
     modJsonString["sign_in_status"] = checkedStatus; 
+    modJsonString.remove("signInStatus");
     String updatedJsonString = json.encode(modJsonString);
 
     // Submit the data to the api 
